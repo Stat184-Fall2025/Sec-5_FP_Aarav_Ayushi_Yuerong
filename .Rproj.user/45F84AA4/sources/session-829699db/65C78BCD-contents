@@ -1,0 +1,77 @@
+# Load necessary libraries
+library(tidyverse)
+library(lubridate)
+library(nycflights23)
+
+# Prepare the flights dataset: select relevant columns, create flight_date, and remove missing delays
+flights_data <- nycflights23::flights %>%
+  select(year, month, day, dep_delay, dep_time, arr_delay, arr_time, origin) %>%
+  mutate(flight_date = make_date(year, month, day)) %>%
+  select(flight_date, dep_delay, dep_time, arr_delay, arr_time, origin) %>%
+  filter(!is.na(dep_delay) & !is.na(arr_delay))
+
+# Preview the first few rows
+head(flights_data)
+
+# Count flights with late arrivals by origin
+late_arrivals <- flights_data %>%
+  filter(arr_delay > 0) %>%
+  count(origin)
+
+# Plot number of delayed arrivals by origin airport
+ggplot(late_arrivals, aes(x = origin, y = n, fill = origin)) +
+  geom_col() +
+  labs(
+    title = "Delayed Arrivals by Airport of Departure",
+    x = "Origin Airport",
+    y = "Number of Late Flights"
+  ) +
+  guides(fill = "none")
+
+# Count flights with late departures by origin
+late_departures <- flights_data %>%
+  filter(dep_delay > 0) %>%
+  count(origin)
+
+# Plot number of delayed departures by origin airport
+ggplot(late_departures, aes(x = origin, y = n, fill = origin)) +
+  geom_col() +
+  labs(
+    title = "Delayed Departures by Airport",
+    x = "Origin Airport",
+    y = "Number of Late Flights"
+  ) +
+  guides(fill = "none")
+
+# Function to calculate the proportion of flights delayed over 15 minutes
+calculate_delay_rates <- function(df) {
+  df %>%
+    summarise(
+      dep_delay_rate = mean(dep_delay > 15, na.rm = TRUE),
+      arr_delay_rate = mean(arr_delay > 15, na.rm = TRUE)
+    )
+}
+
+# Separate datasets by airport
+JFK_flights <- flights_data %>%
+  filter(origin == "JFK") %>%
+  select(flight_date, dep_delay, dep_time, arr_delay, arr_time)
+
+EWR_flights <- flights_data %>%
+  filter(origin == "EWR") %>%
+  select(flight_date, dep_delay, dep_time, arr_delay, arr_time)
+
+LGA_flights <- flights_data %>%
+  filter(origin == "LGA") %>%
+  select(flight_date, dep_delay, dep_time, arr_delay, arr_time)
+
+# Compute delay rates for each airport
+JFK_delay_rates <- calculate_delay_rates(JFK_flights)
+EWR_delay_rates <- calculate_delay_rates(EWR_flights)
+LGA_delay_rates <- calculate_delay_rates(LGA_flights)
+
+# Display the results
+JFK_delay_rates
+EWR_delay_rates
+LGA_delay_rates
+
