@@ -1,3 +1,4 @@
+
 # Load necessary libraries
 library(tidyverse)
 library(lubridate)
@@ -87,6 +88,7 @@ total_delay_rates <- delay_rates_all %>%
   summarise(
     Airport = "Across All Three Airports",
     across(where(is.numeric), mean, na.rm = TRUE)
+    across(where(is.numeric), ~ round(mean(.x, na.rm = TRUE), 4))
   )
 
 final_delay_table <- bind_rows(delay_rates_all, total_delay_rates)
@@ -95,7 +97,7 @@ final_delay_table <- bind_rows(delay_rates_all, total_delay_rates)
 
 #Investigating Factors that Cause Flight Delay 
 
-## 1.) Is there a correlation between the time of day the flight departs/arrives vs the rate of delay. 
+## (1) Is there a correlation between the time of day the flight departs/arrives vs the rate of delay. 
 ### Morning -5:00 AM to 12:00 PM | Afternoon- 12:00 PM to 5:00 PM | Evening - 5:00 PM to 11:59 AM | Night - 12:00 AM to 5:00 AM 
 
 time_vs_rate_of_delay <- flights_data %>%
@@ -119,4 +121,28 @@ time_vs_rate_of_delay <- flights_data %>%
   )
 
 delay_rate_by_time
+
+
+library(dplyr)
+## (2) Is there a correlation between the time of year (the month) the flight departs/arrives vs the rate of delay. 
+
+month_vs_rate_of_delay <- flights_data %>%
+  mutate(month = month(flight_date)) %>%
+
+  group_by(month) %>%
+  summarise(
+    n_flights = n(),
+    n_dep_delayed = sum(dep_delay > 15, na.rm = TRUE),
+    dep_delay_rate = mean(dep_delay > 15, na.rm = TRUE),
+    n_arr_delayed = sum(arr_delay > 15, na.rm = TRUE),
+    arr_delay_rate = mean(arr_delay > 15, na.rm = TRUE)
+  ) %>%
+  ungroup()
+
+## (3) Note: Another factor of consideration, that is worth investigating is the airport of Origin ( the airport the flight departs from), 
+## and it's correlation to the delay rates of arrival 
+### We have already investigated this when we summarize our findings, and through the delayed departures by airport graph
+
+
+
 
