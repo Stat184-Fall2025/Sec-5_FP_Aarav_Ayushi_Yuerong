@@ -1,9 +1,28 @@
+## Introduction
+
+As residents on the East Coast, many of us travel both domestically and internationally through New York City airports. Because of this, understanding patterns in flight departure delays is not only practically useful for arranging travel plans, but also statistically interesting. Flight delays can disrupt schedules, increase stress for passengers, and reflect broader operational challenges at airports. In this project, we analyze flight data from 2023 to study departure times and delay rates for New York City’s three major airports, using data cleansing, summarization, and visualization techniques learned throughout the course to address the following questions: Is there a pattern in departure and arrival delay rates for flights departing from the New York City area? If so, what variables are associated with these delays?
+
+Overall, this project seeks to provide an accessible, data-driven overview of how frequently flights depart on time from New York City airports using reliable historical data, while demonstrating responsible data analysis practices. By integrating multiple statistical methods with consideration of FAIR and CARE principles, the analysis is designed not only to address common questions from readers—such as “Is there a time period with the lowest probability of delays?” and “Are there differences in delay rates among the three airports?”—but also to explain how the resulting visualizations and insights should be interpreted and communicated responsibly.
+
+## Data Selection
+
+To achieve our goal, the package nycflights23 dataset is used to provide data that reflects real situations in the past. It is an R data package that contains detailed records of commercial flights departing from New York City’s three major airports—John F. Kennedy International Airport (JFK), LaGuardia Airport (LGA), and Newark Liberty International Airport (EWR)—during the year 2023. The dataset documents individual flight operations rather than passenger-level information. It includes variables such as flight date, scheduled and actual departure and arrival times, departure and arrival delays, airline identifiers, destinations, and weather-related and operational characteristics. Multiple packages describing the above perspectives are contained in the dataset; however, only the dataset flight containing records of all commercial flights departing from New York City airports is used for analysis, since it focuses on flight operations rather than individual passengers and is commonly used to analyze patterns in flight delays, scheduling, and airport performance.
+
+According to the U.S. Department of Transportation, delay is defined as when the arrival/departure time is 15 minutes later than scheduled. This standard will be used hereinafter.
+
 ```{r}
 #| author: "Yuerong Shu"
-#| reviewer: "Reviewer Name"
+#| reviewer: "Aarav, Ayushi"
 #| echo: false
 #| warning: false
 #| message: false
+
+# packages download 
+install.packages("tidyverse")
+install.packages("lubridate")
+install.packages("nycflights23")
+install.packages("dplyr")
+install.packages("ggplot2")
 
 # Library load
 library(tidyverse)
@@ -11,18 +30,28 @@ library(lubridate)
 library(nycflights23)
 library(dplyr)
 library(ggplot2)
+
+head(flights)
 ```
+
+Here are the first 6 rows of flights dataset, each row represents a single flight and includes information on flight date, airline, origin and destination airports, scheduled and actual departure and arrival times, and departure and arrival delays. As shown above, this dataset is in a tidy, tabular format and distributed as part of a well-documented R package, nycflights23 is widely used for teaching and learning data science concepts in R. It supports reproducible data analysis by providing standardized variable definitions and clear documentation, making it well suited for tasks involving data cleaning, summarization, visualization, and exploratory analysis of flight delay patterns and airport operations in the New York City area.
+
+After evaluation, we believe this dataset largely satisfies the FAIR principles of responsible data management. The data are findable, as they are distributed through a documented R package with clear dataset names and variable descriptions. They are accessible, since they can be loaded directly in R without special permissions or proprietary software. The tabular structure and standardized variable formats make the data interoperable with common data analysis tools, while the accompanying documentation supports reusability by allowing others to reproduce or extend the analysis. One challenge in fully evaluating FAIR compliance is ensuring consistent interpretation of variables such as “departure delay,” which may depend on operational definitions that are not always obvious to new users.
+
+The dataset also raises considerations related to the CARE principles, which emphasize ethical data use and social responsibility. Because the data describe flight operations rather than individual passengers, concerns related to personal privacy are minimal, supporting ethical use. The analysis aims to provide collective benefit by helping travelers and readers better understand historical delay patterns at NYC airports, rather than evaluating or assigning blame to individual workers or airlines. However, it is more difficult to assess principles such as authority to control and responsibility, since the data are collected and released by large institutions and do not directly involve input from communities affected by airport congestion or delays. This limitation reflects a common challenge when applying CARE principles to large, secondary datasets.
+
+## Brief View of Filtered Dataset
 
 ```{r}
 #| author: "Yuerong Shu"
-#| reviewer: "Reviewer Name"
+#| reviewer: "Aarav, Ayushi"
 #| echo: false
 #| warning: false
 #| message: false
 
 ## Data cleansing and basic format check
 Flights <- nycflights23::flights %>%
-  select(year, month, day, dep_delay, dep_time, arr_delay, arr_time, origin) %>% # dep-time and arr-time are saved here in case we want to do investigation on stat of what time section of day have the most possibility of delay
+  select(year, month, day, dep_delay, dep_time, arr_delay, arr_time, origin) %>% # dep-time and arr-time are saved here in case we want to do an investigation on statistics of what time section of the day has the most possibility of delay
   mutate(
     flight_date = make_date(year, month, day) # date compressed into format yyyy-mm-dd using year, month, day columns, more precise to view
   ) %>%
@@ -31,9 +60,20 @@ Flights <- nycflights23::flights %>%
 
 head(Flights)
 ```
+
+We begin by creating a clean, tidied version of flights dataset. After consideration, we decided to keep 6 key variables for analysis, they are:
+**flight_date**: exact date of flight in YYYY-MM-DD format
+**dep_delay & arr_delay**: value between actual and scheduled departure/arrival in minutes, negative number means the plane departed/arrived earlier than schedule 
+**dep_time & arr_time**: actual departure/arriving time of a flight, recorded in local time at the departure airport in HHMM format. For example: 503 represents 05:03AM in East Coast Time of U.S. 
+**origin**: which airport this plane departed from
+
+Using this refined dataset, we construct summary tables that report delay rates and on-time departure percentages for each airport, as well as for New York City overall. To further explore these patterns, we create well-annotated visualizations, including bar plots and scatter plots, to illustrate differences in delay rates across airports and trends in departure delays over time. These visual tools help make complex patterns more accessible to a broad audience.
+
+## Overall Depature and Arrival Delay Rate 
+
 ```{r}
 #| author: "Yuerong Shu"
-#| reviewer: "Reviewer Name"
+#| reviewer: "Ayushi, Aarav"
 #| echo: false
 #| warning: false
 #| message: false
@@ -41,14 +81,23 @@ head(Flights)
 #Overall departure&arrival delay rate 
 Delay_rates <- Flights %>% 
   summarise(
-    dep_delay_rate = mean(dep_delay > 15),  
-    arr_delay_rate = mean(arr_delay > 15) # According to U.S. Department of Transportation, only flights arrived 15 minutes later than planned will be considered a delayed flight, though there is no regulation of delayed departure, we will still use 15 minutes rule here
+    departure_delay_rate = mean(dep_delay > 15),  
+    arrival_delay_rate = mean(arr_delay > 15) # According to U.S. Department of Transportation, only flights arrived 15 minutes later than planned will be considered a delayed flight, though there is no regulation of delayed departure, we will still use 15 minutes rule here
   )
 Delay_rates
 ```
+
+Both departure and arrival delay rate has a value around 20%, the close proportion suggest that these two variables might hava a correlation. 
+
+## IMPORTANT: Correlation analysis between arrival delay rate (scatterplot?)
+For Aarav: add your piece here
+
+## Statistic table of overall delay rate of each NYC airports and airports as a entirety
+For Ayushi: Add your piece here
+
 ```{r}
 #| author: "Yuerong Shu"
-#| reviewer: "Reviewer Name"
+#| reviewer: "Aarav, Ayushi"
 #| echo: false
 #| warning: false
 #| message: false
@@ -65,10 +114,12 @@ EWR_flights <- Flights %>%
 LGA_flights <- Flights %>%
   filter(origin == "LGA") %>%              # keep only flights from LGA
   select(flight_date, dep_delay, dep_time, arr_delay, arr_time) 
+
 ```
+
 ```{r}
 #| author: "Yuerong Shu"
-#| reviewer: "Reviewer Name"
+#| reviewer: "Ayushi, Aarav"
 #| echo: false
 #| warning: false
 #| message: false
@@ -84,12 +135,12 @@ FlightsDistribution_dep <- flights %>%
 ggplot(FlightsDistribution_dep, aes(x = dep_delay)) +
   geom_histogram(
     # Define custom bin boundaries from -30 to 400 in 15-minute increments
-    breaks = seq(-30, 400, by = 15),
+    breaks = seq(-30, 400, by = 30),
     color = "black",      # Outline color for bars
     fill = "steelblue"    # Fill color for bars
   ) +
   # Set x-axis tick marks every 30 minutes for readability
-  scale_x_continuous(breaks = seq(-15, 400, by = 30)) +
+  scale_x_continuous(breaks = seq(-15, 400, by = 15)) +
   # Add plot title and axis labels
   labs(
     title = "Departure Delay Distribution (15-minute bins)",
@@ -110,12 +161,12 @@ FlightsDistribution_arr <- flights %>%
 ggplot(FlightsDistribution_arr, aes(x = arr_delay)) +
   geom_histogram(
     # Same bin boundaries for consistency with departure delay visualization
-    breaks = seq(-30, 400, by = 15),
+    breaks = seq(-30, 400, by = 30),
     color = "black",
     fill = "steelblue"
   ) +
   # X-axis tick marks every 30 minutes
-  scale_x_continuous(breaks = seq(-15, 400, by = 30)) +
+  scale_x_continuous(breaks = seq(-15, 400, by = 15)) +
   labs(
     title = "Arrival Delay Distribution (15-minute bins)",
     x = "Arrival Delay (minutes)",
@@ -123,4 +174,5 @@ ggplot(FlightsDistribution_arr, aes(x = arr_delay)) +
   ) +
   theme_minimal()
 cat("A histogram showing the distribution of arrival delays in 15-minute bins. The x-axis represents arrival delay in minutes, ranging from about −15 minutes (early arrivals) to 400 minutes. The y-axis represents the count of flights. The highest frequencies occur near zero delay, with many flights arriving on time or slightly early. The distribution is right-skewed with a long tail of large positive delays, showing that extreme arrival delays are relatively rare but present.")
+
 ```
