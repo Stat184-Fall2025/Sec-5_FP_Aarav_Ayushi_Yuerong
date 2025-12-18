@@ -99,7 +99,7 @@ LGA_flights <- Flights %>%
 
 ```
 
-## Clearly Displying Results from our Data Analysis
+## Derparture and Arrival Rates Summary Tables
 
 ```{r}
 
@@ -125,9 +125,9 @@ delay_rates_all <- Flights %>%
 total_delay_rates <- delay_rates_all %>%
   summarise(
     origin = "Across All Three Airports",
-    dep_delay_rate = mean(dep_delay_rate),
-    arr_delay_rate = mean(arr_delay_rate),
-    n = sum(n)
+    dep_delay_rate = round(mean(dep_delay_rate, na.rm = TRUE), 4),
+    arr_delay_rate = round(mean(arr_delay_rate, na.rm = TRUE), 4),
+    n = sum(n, na.rm = TRUE)
   )
 
 final_delay_table <- bind_rows(delay_rates_all, total_delay_rates)
@@ -393,4 +393,5 @@ summary(anova_result)
 #| echo: TRUE
 #| eval: TRUE
 ```
+
 
