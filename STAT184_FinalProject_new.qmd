@@ -152,6 +152,11 @@ Analyzing Factors that Can Cause FLight Delay
 Morning -5:00 AM to 12:00 PM \| Afternoon- 12:00 PM to 5:00 PM \| Evening - 5:00 PM to 8:00 PM \| Night - 8:00 PM to 5:00 AM
 
 ```{r}
+#| author:  "Aarav Johri and Ayushi Bisaria"
+#| reviewer: "Yuerong Shu"
+#| echo: false
+#| warning: false
+#| message: false
 Flights_cat <- Flights %>%
   mutate(
     month = month(flight_date),
@@ -184,6 +189,12 @@ delay_by_time
 ### Numbers 1 through 12, correlate to the months of the year that correspond to from Janurary to December.
 
 ```{r}
+#| author:  "Aarav Johri and Ayushi Bisaria"
+#| reviewer: "Yuerong Shu"
+#| echo: false
+#| warning: false
+#| message: false
+
 delay_by_month <- Flights_cat %>%
   group_by(month) %>%
   summarise(
@@ -203,8 +214,8 @@ delay_by_month
 ## Plot number of delayed departures by origin airport
 
 ```{r}
-#| author: "Yuerong Shu"
-#| reviewer: "Reviewer Name"
+#| author: "Yuerong Shu and Ayushi Bisaria"
+#| reviewer: "Aarav Johri"
 #| echo: false
 #| warning: false
 #| message: false
@@ -240,6 +251,11 @@ ggplot(FlightsDistribution_dep, aes(x = dep_delay)) +
 A histogram showing the distribution of departure delays in 15-minute bins. The x-axis represents departure delay in minutes, ranging from about −15 minutes (early departures) to 400 minutes. The y-axis represents the count of flights. Most flights are concentrated near zero delay, with a large spike between −15 and 15 minutes. The distribution is strongly right-skewed, with a long tail extending toward large positive delays, indicating that severe departure delays occur less frequently. Plot number of delayed arrivals by origin airport
 
 ```{r}
+#| author: "Yuerong Shu and Ayushi Bisaria"
+#| reviewer: "Aarav Johri"
+#| echo: false
+#| warning: false
+#| message: false
 # Arrival Delay Distribution barplot
 
 # Filter out extreme arrival delays (> 400 minutes)
@@ -269,6 +285,12 @@ A histogram showing the distribution of arrival delays in 15-minute bins. The x-
 Through this visual representation of the number of delayed arrivals by airport of departure, we see similar results. Flights that have left from the EWR airport have had the highest number of delayed arrivals. These results make sense, as delayed departures will ideally result in delayed arrivals.
 
 ```{r}
+#| author: "Aarav Johri"
+#| reviewer: "Yuerong Shu and Ayushi Bisaria
+#| echo: false
+#| warning: false
+#| message: false
+
 #delay by month bar plot
 ggplot(delay_by_month, aes(x = factor(month), y = delay_rate)) +
   geom_col() +
@@ -281,6 +303,12 @@ ggplot(delay_by_month, aes(x = factor(month), y = delay_rate)) +
 ```
 
 ```{r}
+#| author: "Aarav Johri"
+#| reviewer: "Yuerong Shu and Ayushi Bisaria
+#| echo: false
+#| warning: false
+#| message: false
+
 Flights_cat <- Flights %>%
   mutate(
     month = month(flight_date),
@@ -344,6 +372,12 @@ Create a one-way ANOVA to analyze if the airport is an important factor in influ
 This answers questions like whether there is a difference in delay rate across airports, if yes, is it statistically different
 
 ```{r}
+#| author: "Aarav Johri"
+#| reviewer: "Yuerong Shu and Ayushi Bisaria
+#| echo: false
+#| warning: false
+#| message: false
+
 anova_data <- Flights_cat %>%
   mutate(delayed_num = as.numeric(delayed)) %>%
   select(origin, delayed_num)
@@ -359,3 +393,4 @@ summary(anova_result)
 #| echo: TRUE
 #| eval: TRUE
 ```
+
