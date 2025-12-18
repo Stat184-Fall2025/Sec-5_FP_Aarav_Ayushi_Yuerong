@@ -87,7 +87,6 @@ delay_rates_all <- bind_rows(
 total_delay_rates <- delay_rates_all %>%
   summarise(
     Airport = "Across All Three Airports",
-    across(where(is.numeric), mean, na.rm = TRUE)
     across(where(is.numeric), ~ round(mean(.x, na.rm = TRUE), 4))
   )
 
