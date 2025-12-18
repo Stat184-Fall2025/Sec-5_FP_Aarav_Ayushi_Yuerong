@@ -1,0 +1,126 @@
+```{r}
+#| author: "Yuerong Shu"
+#| reviewer: "Reviewer Name"
+#| echo: false
+#| warning: false
+#| message: false
+
+# Library load
+library(tidyverse)
+library(lubridate)
+library(nycflights23)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+#| author: "Yuerong Shu"
+#| reviewer: "Reviewer Name"
+#| echo: false
+#| warning: false
+#| message: false
+
+## Data cleansing and basic format check
+Flights <- nycflights23::flights %>%
+  select(year, month, day, dep_delay, dep_time, arr_delay, arr_time, origin) %>% # dep-time and arr-time are saved here in case we want to do investigation on stat of what time section of day have the most possibility of delay
+  mutate(
+    flight_date = make_date(year, month, day) # date compressed into format yyyy-mm-dd using year, month, day columns, more precise to view
+  ) %>%
+  select(flight_date, dep_delay, dep_time, arr_delay, arr_time, origin)%>%
+  filter(!is.na(dep_delay), !is.na(arr_delay)) #filter invalid rows
+
+head(Flights)
+```
+```{r}
+#| author: "Yuerong Shu"
+#| reviewer: "Reviewer Name"
+#| echo: false
+#| warning: false
+#| message: false
+
+#Overall departure&arrival delay rate 
+Delay_rates <- Flights %>% 
+  summarise(
+    dep_delay_rate = mean(dep_delay > 15),  
+    arr_delay_rate = mean(arr_delay > 15) # According to U.S. Department of Transportation, only flights arrived 15 minutes later than planned will be considered a delayed flight, though there is no regulation of delayed departure, we will still use 15 minutes rule here
+  )
+Delay_rates
+```
+```{r}
+#| author: "Yuerong Shu"
+#| reviewer: "Reviewer Name"
+#| echo: false
+#| warning: false
+#| message: false
+
+# filter for subset of each airport
+JFK_flights <- Flights %>%
+  filter(origin == "JFK") %>%              # keep only flights from JFK
+  select(flight_date, dep_delay, dep_time, arr_delay, arr_time) 
+
+EWR_flights <- Flights %>%
+  filter(origin == "EWR") %>%              # keep only flights from EWR
+  select(flight_date, dep_delay, dep_time, arr_delay, arr_time) 
+
+LGA_flights <- Flights %>%
+  filter(origin == "LGA") %>%              # keep only flights from LGA
+  select(flight_date, dep_delay, dep_time, arr_delay, arr_time) 
+```
+```{r}
+#| author: "Yuerong Shu"
+#| reviewer: "Reviewer Name"
+#| echo: false
+#| warning: false
+#| message: false
+
+# Departure Delay Distribution barplot
+
+# Filter out extreme departure delays to give readers a closer look at distribution for most cases (> 400 minutes)
+# This helps keep the histogram readable and avoids long-tail distortion.
+FlightsDistribution_dep <- flights %>%
+  filter(dep_delay <= 400)
+
+# Create histogram of departure delays using 15-minute bins
+ggplot(FlightsDistribution_dep, aes(x = dep_delay)) +
+  geom_histogram(
+    # Define custom bin boundaries from -30 to 400 in 15-minute increments
+    breaks = seq(-30, 400, by = 15),
+    color = "black",      # Outline color for bars
+    fill = "steelblue"    # Fill color for bars
+  ) +
+  # Set x-axis tick marks every 30 minutes for readability
+  scale_x_continuous(breaks = seq(-15, 400, by = 30)) +
+  # Add plot title and axis labels
+  labs(
+    title = "Departure Delay Distribution (15-minute bins)",
+    x = "Departure Delay (minutes)",
+    y = "Count of Flights"
+  ) +
+  # Minimal theme for clean appearance
+  theme_minimal()
+cat("A histogram showing the distribution of departure delays in 15-minute bins. The x-axis represents departure delay in minutes, ranging from about −15 minutes (early departures) to 400 minutes. The y-axis represents the count of flights. Most flights are concentrated near zero delay, with a large spike between −15 and 15 minutes. The distribution is strongly right-skewed, with a long tail extending toward large positive delays, indicating that severe departure delays occur less frequently.")
+
+# Arrival Delay Distribution barplot
+
+# Filter out extreme arrival delays (> 400 minutes)
+FlightsDistribution_arr <- flights %>%
+  filter(arr_delay <= 400)
+
+# Create histogram of arrival delays using 15-minute bins
+ggplot(FlightsDistribution_arr, aes(x = arr_delay)) +
+  geom_histogram(
+    # Same bin boundaries for consistency with departure delay visualization
+    breaks = seq(-30, 400, by = 15),
+    color = "black",
+    fill = "steelblue"
+  ) +
+  # X-axis tick marks every 30 minutes
+  scale_x_continuous(breaks = seq(-15, 400, by = 30)) +
+  labs(
+    title = "Arrival Delay Distribution (15-minute bins)",
+    x = "Arrival Delay (minutes)",
+    y = "Count of Flights"
+  ) +
+  theme_minimal()
+cat("A histogram showing the distribution of arrival delays in 15-minute bins. The x-axis represents arrival delay in minutes, ranging from about −15 minutes (early arrivals) to 400 minutes. The y-axis represents the count of flights. The highest frequencies occur near zero delay, with many flights arriving on time or slightly early. The distribution is right-skewed with a long tail of large positive delays, showing that extreme arrival delays are relatively rare but present.")
+```
