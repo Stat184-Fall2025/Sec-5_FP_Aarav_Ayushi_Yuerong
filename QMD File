@@ -12,7 +12,7 @@ library(nycflights23)
 library(dplyr)
 ```
 
-```{r data-prep}
+```{r}
 Flights <- nycflights23::flights %>%
   select(year, month, day, dep_delay, dep_time, arr_delay, arr_time, origin) %>%
   mutate(flight_date = make_date(year, month, day)) %>%
@@ -22,7 +22,7 @@ Flights <- nycflights23::flights %>%
 head(Flights)
 ```
 
-```{r categorization}
+```{r}
 Flights_cat <- Flights %>%
   mutate(
     month = month(flight_date),
@@ -34,9 +34,11 @@ Flights_cat <- Flights %>%
     ),
     delayed = dep_delay > 15
   )
+
+head(Flights_cat)
 ```
 
-```{r delay-by-time}
+```{r}
 delay_by_time <- Flights_cat %>%
   group_by(time_period) %>%
   summarise(
@@ -48,7 +50,20 @@ delay_by_time <- Flights_cat %>%
 delay_by_time
 ```
 
-```{r delay-by-month}
+```{r}
+ggplot(delay_by_time, aes(x = time_period, y = delay_rate)) +
+  geom_col() +
+  labs(
+    title = "Departure Delay Rate (>15 min) by Time Period (All NYC Airports)",
+    x = "Time Period",
+    y = "Delay Rate"
+  ) +
+  theme_minimal()
+```
+
+Time period plot: This bar chart shows the proportion of NYC flights delayed by more than 15 minutes across four departure time periods: Morning, Afternoon, Evening, and Night. The delay rate is lowest in the Morning and increases through the day, reaching its highest level at Night, suggesting that delays tend to accumulate as the day progresses.
+
+```{r}
 delay_by_month <- Flights_cat %>%
   group_by(month) %>%
   summarise(
@@ -60,7 +75,7 @@ delay_by_month <- Flights_cat %>%
 delay_by_month
 ```
 
-```{r plot-delay-by-month}
+```{r}
 ggplot(delay_by_month, aes(x = factor(month), y = delay_rate)) +
   geom_col() +
   labs(
@@ -71,7 +86,9 @@ ggplot(delay_by_month, aes(x = factor(month), y = delay_rate)) +
   theme_minimal()
 ```
 
-```{r anova}
+Alt text (month plot): This bar chart displays the departure delay rate by month for NYC flights. Delay rates increase from winter into summer, peak in early-to-mid summer, and decline through fall, indicating a seasonal pattern where summer months experience the most frequent delays.
+
+```{r}
 anova_data <- Flights_cat %>%
   mutate(delayed_num = as.numeric(delayed)) %>%
   select(origin, delayed_num)
@@ -80,3 +97,6 @@ anova_result <- aov(delayed_num ~ origin, data = anova_data)
 summary(anova_result)
 ```
 
+ (ANOVA output): This section reports a one-way ANOVA test examining whether the average delay indicator differs across the three NYC airports of origin (JFK, EWR, and LGA). The ANOVA table shows a large F statistic and a p-value that is extremely small ,typically reported as less than 0.001 or < 2e-16 in R output. This means we reject the null hypothesis that all airports have the same average delay rate. In practical terms, the results suggest that the likelihood of a flight being delayed by more than 15 minutes depends on which NYC airport the flight departs from.
+
+```
