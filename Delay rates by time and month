@@ -1,0 +1,48 @@
+# Time period & month categorization
+Flights_cat <- Flights %>%
+  mutate(
+    month = month(flight_date),
+    time_period = case_when(
+      dep_time >= 500 & dep_time < 1200 ~ "Morning",
+      dep_time >= 1200 & dep_time < 1700 ~ "Afternoon",
+      dep_time >= 1700 & dep_time < 2100 ~ "Evening",
+      TRUE ~ "Night"
+    ),
+    delayed = dep_delay > 15
+  )
+
+# Delay rate by time period
+delay_by_time <- Flights_cat %>%
+  group_by(time_period) %>%
+  summarise(
+    delay_rate = mean(delayed),
+    n = n(),
+    .groups = "drop"
+  )
+
+# Delay rate by month
+delay_by_month <- Flights_cat %>%
+  group_by(month) %>%
+  summarise(
+    delay_rate = mean(delayed),
+    n = n(),
+    .groups = "drop"
+  )
+
+#delay by month bar plot
+ggplot(delay_by_month, aes(x = factor(month), y = delay_rate)) +
+  geom_col() +
+  labs(
+    title = "Departure Delay Rate (>15 min) by Month (All NYC Airports)",
+    x = "Month",
+    y = "Delay Rate"
+  ) +
+  theme_minimal()
+
+#ANOVA 
+anova_data <- Flights_cat %>%
+  mutate(delayed_num = as.numeric(delayed)) %>%
+  select(origin, delayed_num)
+
+anova_result <- aov(delayed_num ~ origin, data = anova_data)
+summary(anova_result)
