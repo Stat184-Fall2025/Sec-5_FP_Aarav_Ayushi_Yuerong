@@ -181,11 +181,11 @@ delay_by_time
 
 ```
 
-###The table shows a clear relationship between departure time period and flight delay rate. Morning flights have the lowest delay rate (10.3%), while delay rates increase throughout the day, peaking at night (51.3%). Afternoon (20.0%) and evening flights (28.9%) experience progressively higher delays, suggesting that delays accumulate as the day progresses. This pattern indicates that earlier departures are generally more reliable, whereas late-night flights are most susceptible to delays.
+## The table shows a clear relationship between departure time period and flight delay rate. Morning flights have the lowest delay rate (10.3%), while delay rates increase throughout the day, peaking at night (51.3%). Afternoon (20.0%) and evening flights (28.9%) experience progressively higher delays, suggesting that delays accumulate as the day progresses. This pattern indicates that earlier departures are generally more reliable, whereas late-night flights are most susceptible to delays.
 
 ## (2) Is there a correlation between the time of year (the month) the flight departs/arrives vs the rate of delay.
 
-### Numbers 1 through 12, correlate to the months of the year that correspond to from Janurary to December.
+## Numbers 1 through 12, correlate to the months of the year that correspond to from Janurary to December.
 
 ```{r}
 #| author:  "Aarav Johri and Ayushi Bisaria"
@@ -392,6 +392,7 @@ summary(anova_result)
 #| echo: TRUE
 #| eval: TRUE
 ```
+
 
 
 
