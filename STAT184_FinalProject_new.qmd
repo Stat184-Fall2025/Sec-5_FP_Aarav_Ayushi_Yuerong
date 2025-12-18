@@ -385,13 +385,14 @@ anova_result <- aov(delayed_num ~ origin, data = anova_data)
 summary(anova_result)
 ```
 
-(ANOVA output): This section reports a one-way ANOVA test examining whether the average delay indicator differs across the three NYC airports of origin (JFK, EWR, and LGA). The ANOVA table shows a large F statistic and a p-value that is extremely small ,typically reported as less than 0.001 or \< 2e-16 in R output. This means we reject the null hypothesis that all airports have the same average delay rate. In practical terms, the results suggest that the likelihood of a flight being delayed by more than 15 minutes depends on which NYC airport the flight departs from.
+This section reports a one-way ANOVA test examining whether the average delay indicator differs across the three NYC airports of origin (JFK, EWR, and LGA). The ANOVA table shows a large F statistic and a p-value that is extremely small ,typically reported as less than 0.001 or \< 2e-16 in R output. This means we reject the null hypothesis that all airports have the same average delay rate. In practical terms, the results suggest that the likelihood of a flight being delayed by more than 15 minutes depends on which NYC airport the flight departs from.
 
 ```{r appendix-code, echo=TRUE, eval=TRUE}
 #| label: appendix-code
 #| echo: TRUE
 #| eval: TRUE
 ```
+
 
 
 
