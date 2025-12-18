@@ -90,6 +90,7 @@ total_delay_rates <- delay_rates_all %>%
     across(where(is.numeric), ~ round(mean(.x, na.rm = TRUE), 4))
   )
 
+
 final_delay_table <- bind_rows(delay_rates_all, total_delay_rates)
 
 
