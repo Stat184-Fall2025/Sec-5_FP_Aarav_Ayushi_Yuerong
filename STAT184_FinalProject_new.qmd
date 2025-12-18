@@ -137,7 +137,6 @@ final_delay_table
 
 This table allows us to see the results in a more organized way by comparing delay rates across JFK, EWR, and LGA, plus an overall summary across all three airports.
 
-This table allows us to see the results in a more organized table, which compares the rate of delay per individual airport, and according to the
 
 Filter out extreme departure delays to give readers a closer look at distribution for most cases (\> 400 minutes)
 
@@ -393,5 +392,6 @@ summary(anova_result)
 #| echo: TRUE
 #| eval: TRUE
 ```
+
 
 
